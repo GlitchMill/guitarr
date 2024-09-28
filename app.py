@@ -76,8 +76,28 @@ EVENT_TYPE_MAP = {
     "IssuesEvent": "Opened an issue in",
     "ForkEvent": "Forked the repository",
     "CreateEvent": "Created a new repository",
+    "DeleteEvent": "Deleted a repository or branch",
+    "WatchEvent": "Starred the repository",
+    "ReleaseEvent": "Published a release in",
+    "IssueCommentEvent": "Commented on an issue in",
+    "PullRequestReviewEvent": "Reviewed a pull request in",
+    "PullRequestReviewCommentEvent": "Commented on a pull request in",
+    "CommitCommentEvent": "Commented on a commit in",
+    "DeploymentEvent": "Deployed the repository",
+    "DeploymentStatusEvent": "Changed the status of a deployment in",
+    "RepositoryEvent": "Created or updated a repository",
+    "MembershipEvent": "Added or removed a collaborator in",
+    "ProjectEvent": "Modified a project in",
+    "ProjectCardEvent": "Modified a card in a project",
+    "ProjectColumnEvent": "Modified a column in a project",
+    "GollumEvent": "Updated the wiki in",
+    "PublicEvent": "Made the repository public",
+    "StatusEvent": "Changed the status of a commit in",
+    "WatchEvent": "Watched the repository",
+    "LabelEvent": "Added or removed labels in",
     # Add more mappings as needed
 }
+
 
 def fetch_contributions(username):
     config = load_config()
