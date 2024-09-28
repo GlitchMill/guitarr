@@ -1,77 +1,73 @@
 
-# GitHub README Fetcher
+# Guitarr
+  <!-- Update with your logo image link -->
+## Overview
 
-A simple web application that fetches and displays the README file from a specified GitHub repository based on a username specified in a `config.json` file. The application uses Flask to serve the web page and provides an asynchronous loading experience for better user interaction.
+Guitarr is a web application that provides insights into your GitHub contributions and repositories. It fetches your recent contributions, displays your avatar, and showcases the README files from your repositories, all in a user-friendly interface.
 
 ## Features
 
-- Automatically fetches the README file from a GitHub repository.
-- Displays the content in a user-friendly format.
-- Asynchronous loading to prevent waiting times on page load.
-- Simple configuration via a JSON file.
-
-## Prerequisites
-
-- Python 3.6 or higher
-- Flask
-- `requests` library
+- **User Contributions:** View your latest GitHub activity including pushes, pull requests, issues, and more.
+- **Profile Information:** Displays your GitHub avatar and username.
+- **Repository README:** Fetches and displays the README file from your repositories.
+- **Timezone Support:** Time of contributions is displayed in your configured timezone.
 
 ## Installation
 
-1. **Clone the repository** (or download the project files):
+To set up the Guitarr application on your local machine, follow these steps:
+
+1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/glitchmill/guitarr.git
    cd guitarr
    ```
 
-2. **Install the required packages**:
+2. **Install dependencies:**
+
+   Make sure you have Python installed. You can install the required packages using pip:
 
    ```bash
-   pip install Flask requests
+   pip install -r requirements.txt
    ```
 
-3. **Create a `config.json` file** in the project directory with the following structure:
+3. **Set up your configuration:**
+
+   Create a `config.json` file in the root directory with the following structure:
 
    ```json
    {
-       "username": "your-github-username"
+       "username": "your_github_username",
+       "timezone": "your_timezone"  // e.g., "UTC", "America/New_York"
    }
    ```
 
-   Replace `"your-github-username"` with the actual username of the GitHub repository you want to fetch the README from.
+4. **Run the application:**
 
-## Project Structure
-
-```
-/your-project-directory
-│
-├── fetch_readme.py       # The main Python application
-├── config.json           # Configuration file for GitHub username
-└── templates
-    └── index.html        # HTML template for displaying README content
-```
-
-## Usage
-
-1. **Run the application**:
+   Start the Flask application:
 
    ```bash
    python app.py
    ```
 
-2. **Open your web browser** and navigate to:
+5. **Access the application:**
 
-   ```
-   http://127.0.0.1:5000
-   ```
+   Open your web browser and go to `http://127.0.0.1:5000/`.
 
-3. The application will automatically fetch and display the README content from the specified GitHub repository.
+## Usage
 
-## Troubleshooting
+- Upon loading the application, you will see your GitHub avatar and a list of your recent contributions.
+- The README of your repository will be displayed below your contribution details.
 
-- If you encounter any errors fetching the README, ensure that the specified username in `config.json` is correct and that the repository exists.
-- Ensure that you have a stable internet connection.
+## Contributing
+
+Contributions are welcome! If you would like to contribute to Guitarr, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes and commit them (`git commit -m 'Add new feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Open a pull request.
 
 ## License
 
@@ -79,5 +75,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgements
 
-- [Flask](https://flask.palletsprojects.com/) - A micro web framework for Python.
-- [Requests](https://requests.readthedocs.io/en/latest/) - A simple HTTP library for Python.
+- Thanks to [Flask](https://flask.palletsprojects.com/) for the web framework.
+- Special thanks to [GitHub](https://github.com) for providing the API used in this application.
+
+## Contact
+
+For questions or inquiries, please reach out via GitHub.
