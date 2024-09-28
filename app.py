@@ -4,6 +4,7 @@ import json
 import time
 from datetime import datetime
 import pytz
+import markdown
 
 app = Flask(__name__)
 
@@ -81,9 +82,12 @@ def fetch_readme(username):
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
 
+    # Convert Markdown to HTML
+    html_content = markdown.markdown(readme_content)
+
     # Cache the README content
-    readme_cache[username] = {'content': readme_content, 'timestamp': time.time()}
-    return readme_content
+    readme_cache[username] = {'content': html_content, 'timestamp': time.time()}
+    return html_content
 
 
 # Mapping of GitHub event types to friendly names

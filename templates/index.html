@@ -52,12 +52,8 @@
             width="24"
             height="24"
           >
-            <path
-              d="M10 4H4v16h16V8h-6z"
-            />
-            <path
-              d="M10 4v4h4"
-            />
+            <path d="M10 4H4v16h16V8h-6z" />
+            <path d="M10 4v4h4" />
           </svg>
           {{ open_repos }}
         </div>
@@ -72,7 +68,9 @@
       <ul>
         {% for contribution in contributions %}
         <li>
-        <strong  style="color: #6f42c1">{{ contribution.description.split(' ')[0] }}</strong>
+          <strong style="color: #6f42c1"
+            >{{ contribution.description.split(' ')[0] }}</strong
+          >
           <span style="color: #6f42c1">code</span> to
           <a
             href="{{ contribution.repo_url }}"
@@ -102,11 +100,11 @@
           .then((response) => response.text())
           .then((data) => {
             loadingDiv.style.display = "none"; // Hide loading message
-            readmeDiv.textContent = data; // Display the README content
+            readmeDiv.innerHTML = data; // Display the README content as HTML
           })
           .catch((error) => {
             loadingDiv.style.display = "none";
-            readmeDiv.textContent = "Error: " + error;
+            readmeDiv.innerHTML = "Error: " + error; // Show error message
           });
       });
     </script>
