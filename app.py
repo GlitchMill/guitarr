@@ -52,22 +52,39 @@ def fetch_user_data(username):
         }
 
 
-# Fetch the README file from the GitHub repository
 def fetch_readme(username):
     if username in readme_cache and (time.time() - readme_cache[username]['timestamp']) < CACHE_TIMEOUT:
         return readme_cache[username]['content']
     
-    url = f"https://raw.githubusercontent.com/{username}/{username}/refs/heads/main/README.md"
+    # Try to fetch from the 'main' branch first
+    url_main = f"https://raw.githubusercontent.com/{username}/{username}/refs/heads/main/README.md"
+    url_master = f"https://raw.githubusercontent.com/{username}/{username}/refs/heads/master/README.md"
+    
     try:
-        response = requests.get(url, timeout=10)
+        # Attempt to fetch README from the main branch
+        response = requests.get(url_main, timeout=10)
         response.raise_for_status()
         readme_content = response.text
-        readme_cache[username] = {'content': readme_content, 'timestamp': time.time()}
-        return readme_content
+    except requests.exceptions.HTTPError as e:
+        # If fetching from main fails, try fetching from the master branch
+        if response.status_code == 404:
+            try:
+                response = requests.get(url_master, timeout=10)
+                response.raise_for_status()
+                readme_content = response.text
+            except requests.exceptions.RequestException as e:
+                return f"Error fetching from master branch: {e}"
+        else:
+            return f"Error fetching from main branch: {e}"
     except requests.exceptions.Timeout:
         return "Error: The request timed out."
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
+
+    # Cache the README content
+    readme_cache[username] = {'content': readme_content, 'timestamp': time.time()}
+    return readme_content
+
 
 # Mapping of GitHub event types to friendly names
 EVENT_TYPE_MAP = {
