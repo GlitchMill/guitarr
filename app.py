@@ -16,20 +16,37 @@ def load_config():
 readme_cache = {}
 CACHE_TIMEOUT = 3600  # Cache timeout in seconds (1 hour)
 
-# Fetch the user's avatar URL and follower/following count from GitHub
 def fetch_user_data(username):
-    url = f"https://api.github.com/users/{username}"
+    user_url = f"https://api.github.com/users/{username}"
+    repos_url = f"https://api.github.com/users/{username}/repos"
+    
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        user_data = response.json()
+        # Fetch user data
+        user_response = requests.get(user_url, timeout=10)
+        user_response.raise_for_status()
+        user_data = user_response.json()
+        
+        # Fetch repositories to get the stars count
+        repos_response = requests.get(repos_url, timeout=10)
+        repos_response.raise_for_status()
+        repos_data = repos_response.json()
+        
+        # Calculate total stars
+        total_stars = sum(repo.get('stargazers_count', 0) for repo in repos_data)
+
         return {
             'avatar_url': user_data.get('avatar_url', 'default_avatar.png'),
             'followers': user_data.get('followers', 0),
-            'following': user_data.get('following', 0)
+            'following': user_data.get('following', 0),
+            'stars': total_stars  # Include total stars in the return dictionary
         }
     except requests.exceptions.RequestException:
-        return {'avatar_url': 'default_avatar.png', 'followers': 0, 'following': 0}
+        return {
+            'avatar_url': 'default_avatar.png',
+            'followers': 0,
+            'following': 0,
+            'stars': 0  # Default stars value in case of an error
+        }
 
 
 # Fetch the README file from the GitHub repository
@@ -95,16 +112,24 @@ def fetch_contributions(username):
         return contributions
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
-
+    
 @app.route('/')
 def index():
     config = load_config()
     username = config.get("username")
-    user_data = fetch_user_data(username)
+    user_data = fetch_user_data(username)  # Fetch user data which now includes stars
     contributions = fetch_contributions(username)
-    return render_template('index.html', username=username, avatar_url=user_data['avatar_url'],
-                           followers=user_data['followers'], following=user_data['following'],
-                           contributions=contributions)
+    
+    return render_template(
+        'index.html', 
+        username=username, 
+        avatar_url=user_data['avatar_url'],
+        followers=user_data['followers'],
+        following=user_data['following'],
+        stars=user_data['stars'],  # Include the stars count here
+        contributions=contributions
+    )
+
 
 
 @app.route('/fetch_readme')
