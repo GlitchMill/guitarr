@@ -26,26 +26,29 @@ def fetch_user_data(username):
         user_response.raise_for_status()
         user_data = user_response.json()
         
-        # Fetch repositories to get the stars count
+        # Fetch repositories to get the stars count and open repos count
         repos_response = requests.get(repos_url, timeout=10)
         repos_response.raise_for_status()
         repos_data = repos_response.json()
         
-        # Calculate total stars
+        # Calculate total stars and open repositories
         total_stars = sum(repo.get('stargazers_count', 0) for repo in repos_data)
+        open_repos_count = sum(1 for repo in repos_data if not repo.get('private') and not repo.get('archived'))
 
         return {
             'avatar_url': user_data.get('avatar_url', 'default_avatar.png'),
             'followers': user_data.get('followers', 0),
             'following': user_data.get('following', 0),
-            'stars': total_stars  # Include total stars in the return dictionary
+            'stars': total_stars,
+            'open_repos': open_repos_count  # Include open repos count
         }
     except requests.exceptions.RequestException:
         return {
             'avatar_url': 'default_avatar.png',
             'followers': 0,
             'following': 0,
-            'stars': 0  # Default stars value in case of an error
+            'stars': 0,
+            'open_repos': 0  # Default open repos value in case of an error
         }
 
 
@@ -117,7 +120,7 @@ def fetch_contributions(username):
 def index():
     config = load_config()
     username = config.get("username")
-    user_data = fetch_user_data(username)  # Fetch user data which now includes stars
+    user_data = fetch_user_data(username)
     contributions = fetch_contributions(username)
     
     return render_template(
@@ -126,7 +129,8 @@ def index():
         avatar_url=user_data['avatar_url'],
         followers=user_data['followers'],
         following=user_data['following'],
-        stars=user_data['stars'],  # Include the stars count here
+        stars=user_data['stars'],  # Include stars count
+        open_repos=user_data['open_repos'],  # Include open repos count
         contributions=contributions
     )
 
