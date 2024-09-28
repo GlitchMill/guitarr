@@ -16,6 +16,22 @@ def load_config():
 readme_cache = {}
 CACHE_TIMEOUT = 3600  # Cache timeout in seconds (1 hour)
 
+# Fetch the user's avatar URL and follower/following count from GitHub
+def fetch_user_data(username):
+    url = f"https://api.github.com/users/{username}"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        user_data = response.json()
+        return {
+            'avatar_url': user_data.get('avatar_url', 'default_avatar.png'),
+            'followers': user_data.get('followers', 0),
+            'following': user_data.get('following', 0)
+        }
+    except requests.exceptions.RequestException:
+        return {'avatar_url': 'default_avatar.png', 'followers': 0, 'following': 0}
+
+
 # Fetch the README file from the GitHub repository
 def fetch_readme(username):
     if username in readme_cache and (time.time() - readme_cache[username]['timestamp']) < CACHE_TIMEOUT:
@@ -32,17 +48,6 @@ def fetch_readme(username):
         return "Error: The request timed out."
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
-
-# Fetch the user's avatar URL from GitHub
-def fetch_avatar(username):
-    url = f"https://api.github.com/users/{username}"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        user_data = response.json()
-        return user_data.get('avatar_url', 'default_avatar.png')
-    except requests.exceptions.RequestException:
-        return 'default_avatar.png'
 
 # Mapping of GitHub event types to friendly names
 EVENT_TYPE_MAP = {
@@ -95,9 +100,12 @@ def fetch_contributions(username):
 def index():
     config = load_config()
     username = config.get("username")
-    avatar_url = fetch_avatar(username)
+    user_data = fetch_user_data(username)
     contributions = fetch_contributions(username)
-    return render_template('index.html', username=username, avatar_url=avatar_url, contributions=contributions)
+    return render_template('index.html', username=username, avatar_url=user_data['avatar_url'],
+                           followers=user_data['followers'], following=user_data['following'],
+                           contributions=contributions)
+
 
 @app.route('/fetch_readme')
 def fetch_readme_route():
