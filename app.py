@@ -17,6 +17,36 @@ def load_config():
 readme_cache = {}
 CACHE_TIMEOUT = 3600  # Cache timeout in seconds (1 hour)
 
+def fetch_user_languages(username):
+    repos_url = f"https://api.github.com/users/{username}/repos"
+    
+    try:
+        repos_response = requests.get(repos_url, timeout=10)
+        repos_response.raise_for_status()
+        repos_data = repos_response.json()
+        
+        language_count = {}
+        for repo in repos_data:
+            # Skip private and archived repositories
+            if repo.get('private') or repo.get('archived'):
+                continue
+            
+            # Get the languages used in the repository
+            languages_url = repo.get('languages_url')
+            languages_response = requests.get(languages_url, timeout=10)
+            languages_response.raise_for_status()
+            languages_data = languages_response.json()
+            
+            # Update language count (just keep the language names)
+            for language in languages_data.keys():
+                language_count[language] = language_count.get(language, 0) + 1  # Count occurrences
+
+        # Sort languages by count of occurrences
+        most_used_languages = sorted(language_count.items(), key=lambda x: x[1], reverse=True)
+        return [lang for lang, _ in most_used_languages[:5]]  # Get the top 5 languages without bytes
+    except requests.exceptions.RequestException:
+        return []
+
 def fetch_user_data(username):
     user_url = f"https://api.github.com/users/{username}"
     repos_url = f"https://api.github.com/users/{username}/repos"
@@ -36,12 +66,16 @@ def fetch_user_data(username):
         total_stars = sum(repo.get('stargazers_count', 0) for repo in repos_data)
         open_repos_count = sum(1 for repo in repos_data if not repo.get('private') and not repo.get('archived'))
 
+        # Fetch most used languages
+        most_used_languages = fetch_user_languages(username)
+
         return {
             'avatar_url': user_data.get('avatar_url', 'default_avatar.png'),
             'followers': user_data.get('followers', 0),
             'following': user_data.get('following', 0),
             'stars': total_stars,
-            'open_repos': open_repos_count  # Include open repos count
+            'open_repos': open_repos_count,  
+            'most_used_languages': most_used_languages
         }
     except requests.exceptions.RequestException:
         return {
@@ -49,7 +83,8 @@ def fetch_user_data(username):
             'followers': 0,
             'following': 0,
             'stars': 0,
-            'open_repos': 0  # Default open repos value in case of an error
+            'open_repos': 0,  
+            'most_used_languages': []  
         }
 
 
@@ -163,7 +198,7 @@ def index():
     username = config.get("username")
     user_data = fetch_user_data(username)
     contributions = fetch_contributions(username)
-    
+
     return render_template(
         'index.html', 
         username=username, 
@@ -172,8 +207,10 @@ def index():
         following=user_data['following'],
         stars=user_data['stars'],  # Include stars count
         open_repos=user_data['open_repos'],  # Include open repos count
+        most_used_languages=user_data['most_used_languages'],  # Include most used languages
         contributions=contributions
     )
+
 
 
 

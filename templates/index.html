@@ -62,6 +62,13 @@
 
     <pre id="readmeContent"><div class="loading">Loading README...</div></pre>
 
+    <h3>Most Used Languages:</h3>
+    <ul>
+        {% for language in most_used_languages %}
+            <li>{{ language }}</li>
+        {% endfor %}
+    </ul>    
+
     <h3>Recent Contributions</h3>
     <div class="contributions">
       {% if contributions %}
